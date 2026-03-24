@@ -22,13 +22,14 @@ ingest_bylaws_pdfs -  full pipeline: PDF paths → list of dicts chunks
 
 
 import re
+from pathlib import Path
 from pypdf import PdfReader
 from typing import List, Dict
 
 
 
 ### LOAD ###
-def load_pdf_text(pdf_path: PATH) -> str:   
+def load_pdf_text(pdf_path: Path) -> str:   
     """
     Extracts raw text from a PDF file.
     Returns all pages joined as
@@ -180,7 +181,7 @@ def chunk_by_main_clause(text: str) -> List[Dict]:
 
 ###  INGEST FULL PIPELINE ###
 
-def ingest_bylaws_pdfs(pdf_paths: PATH) -> List[Dict]:
+def ingest_bylaws_pdfs(pdf_paths: Path) -> List[Dict]:
     """
     End-to-end ingestion: PDF file paths → list of clause chunks.
     Designed to accept a list so future by-law documents can be added easily.

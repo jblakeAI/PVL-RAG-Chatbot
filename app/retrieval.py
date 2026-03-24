@@ -99,7 +99,8 @@ def query_answer_pipe(db, query):
     Steps:
     1. Retrieve clause chunks
     2. Gate on retrieval distance (reject if no chunk is close enough)
-    3. 
+    3. Select best clause if multiple pass the filter
+    4. Generate answer with LLM
     
     """
 
@@ -126,7 +127,7 @@ def query_answer_pipe(db, query):
     if len(candidates) == 1:
         best_clause = candidates[0]
     else:
-        best_clause = max(candidates, key=lambda c: c["cross_encoder"])
+        best_clause = max(candidates, key=lambda c: c["cross_encoder_score"])
 
 
     # LLM response generation

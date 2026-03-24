@@ -39,7 +39,7 @@ def main():
         print("\n Searching...\n")
         answer = query_answer_pipe(db,query)
 
-        print("Answer: \n{answer}")
+        print(f"Answer: \n{answer}")
         print("=" * 50 + "\n")
 
 

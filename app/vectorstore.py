@@ -10,16 +10,15 @@ init_embeddings   -   loads the sentence-transformer embedding model
 build_vectorstore -   creates the vectorstore db from chunks (RUN ONCE)
 
 load_db           -   loads existing database 
+
 """
 
 
-
-
-# CREATE EMBEDDINGS AND VECTORSTORE 
 import os
 from typing import List, Dict
 
-from langchain_community.embeddings import HuggingFaceEmbeddings
+# from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_huggingface import HuggingFaceEmbeddings #up
 from langchain_chroma import Chroma
 
 
@@ -107,8 +106,8 @@ def load_db() -> Chroma:
     embedding_function=embeddings,
     collection_name=COLLECTION_NAME,
 )
-    count = db._collection.count
-    assert count() > 0, (
+    count = db._collection.count()
+    assert count > 0, (
         f"DB loaded but contains no vectors. Rerun build.py"
     )
     
