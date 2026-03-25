@@ -11,7 +11,8 @@ env/
 
 
 # Notes
-Pampellone Chatbot development Notes.md
+Pampellone Chatbot development  Notes.md
+*.md
 *.txt
 !requirements.txt
 
