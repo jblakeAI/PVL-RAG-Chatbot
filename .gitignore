@@ -3,11 +3,12 @@
 
 # Environment variables
 .env
+env/
 
 # Virtual environment
 .venv/
 .venvChat/
-env/
+
 
 # Notes
 Pampellone Chatbot development.txt
@@ -19,4 +20,4 @@ __pycache__/
 *.pyc
 
 # Chroma vector DB (if you don't want to push it)
-chroma_db/
+# chroma_db/

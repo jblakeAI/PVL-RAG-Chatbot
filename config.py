@@ -12,7 +12,7 @@ from pathlib import Path
 
 # If new documents paths are added update them here.
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent # __file__ is config.py itself , parent.parent is the root folder 
+PROJECT_ROOT = Path(__file__).resolve().parent# __file__ is config.py itself , parent.parent is the root folder 
 PDF_PATHS = [PROJECT_ROOT / "data" / "Pampellone_by_laws.pdf"]   # Path designated as list for future additions of new bylaws or updated docs
 
 
@@ -51,7 +51,7 @@ MAX_RETRIEVAL_DIST = 1.2
 CROSS_ENCODER_MODEL = "cross-encoder/ms-marco-MiniLM-L-6-v2"
 
 # Minimum cross-encoder score to consider a clause relevant
-RELEVANCE_THRESHOLD = 2.0
+RELEVANCE_THRESHOLD = 1.5
 
 
 
@@ -68,6 +68,6 @@ GROQ_MODEL = "llama-3.3-70b-versatile"
 
 # Generation parameters
 GROQ_MAX_TOKENS = 300    # Maximum tokens in the response.
-# GROQ_TIMEOUT = 30         # Seconds to wait for a response.                                                  !!!!! MAYBE ADD THIS
+
 
 

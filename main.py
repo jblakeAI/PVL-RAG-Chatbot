@@ -9,11 +9,25 @@ import uvicorn
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from contextlib import asynccontextmanager
 
 from langchain_chroma import Chroma
 from vectorstore import load_db
 from config import GROQ_MODEL
 from retrieval import query_answer_pipe
+
+
+
+#### STARTUP ####
+
+db: Chroma = None
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+   global db
+   db = load_db()
+   print(f"Server ready - model: {GROQ_MODEL}")
+   yield 
 
 
 
@@ -23,24 +37,25 @@ from retrieval import query_answer_pipe
 app = FastAPI(
     title = "Pampellone By-laws Chatbot",
     description = "Answers questions about the Pampellone Villas by-laws.",
-    version = "1.0.0"
+    version = "1.0.0",
+    lifespan=lifespan
 )
 
 
 ## CORS : frontend <--> server communication ##
 
-app. add.middleware(
+app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_methods=["GET", "POST"]
-    aloow_headers=["*"],
+    allow_methods=["GET", "POST"],
+    allow_headers=["*"],
 )
 
 
 
 #### REQUEST AND RESPONSE MODELS ####
 
-# Pydantict models describes the exact shape of JSON that comes IN and goes OUT
+# Pydantic models describe the exact shape of JSON that comes IN and goes OUT
 # FastAPI validates these automatically 
 
 class AskRequest(BaseModel):
@@ -55,30 +70,19 @@ class AskResponse(BaseModel):
 
 
 
-#### STARTUP ####
-
-db: Chroma = None
-
-@app.on_event("startup")
-async def startup():
-   global db
-   db = load_db()
-   print(f"Server ready - model: {GROQ_MODEL}")
-
-
-
 
 #### ENDPOINTS ####
 @app.get("/")
 async def health_check():
-    return {"status": "OK"  "message": "Pampellone By-Laws Chatbot is running."}
+    return {"status": "OK",  "message": "Pampellone By-Laws Chatbot is running."}
+
             
-@pp.post("/ask", response_model=AskResponse)
+@app.post("/ask", response_model=AskResponse)
 async def ask(request: AskRequest):
 
     question = request.question.strip()
     if not question:
-        raise HTTPException(status_code=400  detail="Question cannot be empty.")
+        raise HTTPException(status_code=400,  detail="Question cannot be empty.")
     
     result = query_answer_pipe(db, question)
 
