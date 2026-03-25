@@ -68,6 +68,6 @@ GROQ_MODEL = "llama-3.3-70b-versatile"
 
 # Generation parameters
 GROQ_MAX_TOKENS = 300    # Maximum tokens in the response.
-GROQ_TIMEOUT = 30         # Seconds to wait for a response.                                                  !!!!! MAYBE ADD THIS
+# GROQ_TIMEOUT = 30         # Seconds to wait for a response.                                                  !!!!! MAYBE ADD THIS
 
 

@@ -18,7 +18,7 @@ import os
 from typing import List, Dict
 
 # from langchain_community.embeddings import HuggingFaceEmbeddings
-from langchain_huggingface import HuggingFaceEmbeddings #up
+from langchain_huggingface import HuggingFaceEmbeddings #update
 from langchain_chroma import Chroma
 
 

@@ -6,11 +6,13 @@
 
 # Virtual environment
 .venv/
-.venvChatbot/
+.venvChat/
 env/
 
 # Notes
+Pampellone Chatbot development.txt
 *.txt
+!requirements.txt
 
 # Python cache (good to ignore too)
 __pycache__/

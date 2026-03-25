@@ -1,58 +1,96 @@
 """
-main.py
+Pampellone By-Laws Chatbot - FastAPI Backend
 
-Entry point for running and testing the chatbot locally.
- 
-Usage:
-    python main.py
- 
-Loads the vector DB and starts an interactive loop where you can type
-questions and see the answers. Type 'quit' or 'exit' to stop.
-
+This file only handles HTTP concerns: receiving requests, returning responses,
+and error handling. All RAG logic is delegated to the existing project modules.
 """
 
+import uvicorn
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+
+from langchain_chroma import Chroma
 from vectorstore import load_db
+from config import GROQ_MODEL
 from retrieval import query_answer_pipe
 
-def main():
-    print("=" * 50)
-    print( "PVL by-laws Chatbot")
-    print("=" * 50)
-    print("Loading database...")
 
-    db = load_db()
 
-    print("\nReady. Type your question below.")
-    print("Type 'quit' to exit.\n")
 
-    while True:
+#### APP SETUP ####
 
-        query = input("Your question:").strip()
+app = FastAPI(
+    title = "Pampellone By-laws Chatbot",
+    description = "Answers questions about the Pampellone Villas by-laws.",
+    version = "1.0.0"
+)
 
-        if not query:
-            continue
 
-        if query.lower() in ("quit", "exit"):
-            print("Goodbye.")
-            break
+## CORS : frontend <--> server communication ##
+
+app. add.middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["GET", "POST"]
+    aloow_headers=["*"],
+)
+
+
+
+#### REQUEST AND RESPONSE MODELS ####
+
+# Pydantict models describes the exact shape of JSON that comes IN and goes OUT
+# FastAPI validates these automatically 
+
+class AskRequest(BaseModel):
+    question: str            # The user's question (required)
         
-        print("\n Searching...\n")
-        answer = query_answer_pipe(db,query)
 
-        print(f"Answer: \n{answer}")
-        print("=" * 50 + "\n")
-
-
+class AskResponse(BaseModel):
+    answer: str                       # GROQ's grounded answer
+    clause_id: str | None = None      # The clause that answered the question (if found)
+    clause_text: str | None = None    # # The raw clause text (for transparency)
 
 
 
 
+#### STARTUP ####
+
+db: Chroma = None
+
+@app.on_event("startup")
+async def startup():
+   global db
+   db = load_db()
+   print(f"Server ready - model: {GROQ_MODEL}")
 
 
 
 
+#### ENDPOINTS ####
+@app.get("/")
+async def health_check():
+    return {"status": "OK"  "message": "Pampellone By-Laws Chatbot is running."}
+            
+@pp.post("/ask", response_model=AskResponse)
+async def ask(request: AskRequest):
+
+    question = request.question.strip()
+    if not question:
+        raise HTTPException(status_code=400  detail="Question cannot be empty.")
+    
+    result = query_answer_pipe(db, question)
+
+    return AskResponse(
+        answer=result["answer"],
+        clause_id=result["clause_id"],
+        clause_text=result["clause_text"]
+    )
 
 
+
+    #### LOCAL ENTRY POINT ###
 
 if __name__ == "__main__":
-    main()
+    uvicorn.run("main:app", host ="0.0.0.0", port=8000, reload=True)

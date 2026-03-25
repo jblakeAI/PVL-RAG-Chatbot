@@ -67,6 +67,7 @@ cross_encoder = CrossEncoder(
     device="cpu"
 )
 
+
 ###  CROSS ENCODER RELEVANCE FILTER ###
 
 def is_clause_relevant(query: str, chunks: List[Dict], threshold = RELEVANCE_THRESHOLD) -> List[Dict]:   
@@ -102,27 +103,46 @@ def query_answer_pipe(db, query):
     3. Select best clause if multiple pass the filter
     4. Generate answer with LLM
     
+    Always returns a dict with three keys:
+        answer      (str)       — the LLM response or a fallback message
+        clause_id   (str|None)  — e.g. "3.02", or None if no clause was found
+        clause_text (str|None)  — the raw clause text, or None if no clause was found
     """
 
     # Chunk retrieval
     chunks = retrieval_dict(db, query)
 
     if not chunks:
-        return "I could not find any relevant by-laws that match your question."  
+        return {
+            "answer": "I could not find any relevant by-laws that match your question.",
+            "clause_id": None,
+            "clause_text": None
+        } 
     
     
     # Numeric (distance) gate for retrieved clauses
-    min_dist = min(chunks, key = lambda c: c['score'])         
+    min_dist = min(chunks, key = lambda c: c['score'])   
+
     
     if min_dist['score'] > MAX_RETRIEVAL_DIST:                       
-        return "Your question doesn't appear to be covered by the current by-laws."
+        return {
+            "answer": "Your question doesn't appear to be covered by the current by-laws.",
+            "clause_id": None,
+            "clause_text": None
+        }
     
 
     # Filtering answering clauses (Cross Encoder)                                
     candidates = is_clause_relevant(query, chunks)
 
     if not candidates:
-        return "No clause was relevant enough to answer your question accurately."
+        return {
+            "answer":  "No clause was relevant enough to answer your question accurately.",
+            "clause_id": None,
+            "clause_text": None
+        }
+    
+   
     
     if len(candidates) == 1:
         best_clause = candidates[0]
@@ -134,5 +154,8 @@ def query_answer_pipe(db, query):
 
     answer = llm_answer_generator(query, best_clause['text'])
 
-    return answer
-    
+    return {
+        "answer": answer,
+        "clause_id": best_clause['clause_id'],
+        "clause_text": best_clause['text']
+    }
