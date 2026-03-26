@@ -46,7 +46,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["https://huggingface.co/spaces/j-blake/PVL_RAG_Chatbot"],
     allow_methods=["GET", "POST"],
     allow_headers=["*"],
 )
