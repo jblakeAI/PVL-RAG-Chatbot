@@ -46,7 +46,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://huggingface.co/spaces/j-blake/PVL_RAG_Chatbot"],
+    allow_origins=["https://huggingface.co/spaces/j-blake/PVL_RAG_Chatbotg"],
     allow_methods=["GET", "POST"],
     allow_headers=["*"],
 )
@@ -72,7 +72,7 @@ class AskResponse(BaseModel):
 
 
 #### ENDPOINTS ####
-@app.get("/")
+@app.get("/health")
 async def health_check():
     return {"status": "OK",  "message": "Pampellone By-Laws Chatbot is running."}
 
@@ -92,7 +92,10 @@ async def ask(request: AskRequest):
         clause_text=result["clause_text"]
     )
 
-
+#### Route to serve the HTML file ####
+@app.get("/")
+async def serve_frontend():
+    return FileResponse("index_.html")
 
     #### LOCAL ENTRY POINT ###
 
