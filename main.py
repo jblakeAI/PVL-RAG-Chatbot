@@ -93,10 +93,10 @@ async def ask(request: AskRequest):
         clause_text=result["clause_text"]
     )
 
-#### Route to serve the HTML file ####
-@app.get("/")
-async def serve_frontend():
-    return FileResponse("index_.html")
+# #### Route to serve the HTML file ####
+# @app.get("/")
+# async def serve_frontend():
+#     return FileResponse("index_.html")
 
     #### LOCAL ENTRY POINT ###
 
