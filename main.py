@@ -10,24 +10,12 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from contextlib import asynccontextmanager
+from fastapi.responses import FileResponse
 
 from langchain_chroma import Chroma
 from vectorstore import load_db
 from config import GROQ_MODEL
 from retrieval import query_answer_pipe
-
-
-
-#### STARTUP ####
-
-db: Chroma = None
-
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-   global db
-   db = load_db()
-   print(f"Server ready - model: {GROQ_MODEL}")
-   yield 
 
 
 
@@ -47,7 +35,6 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["https://huggingface.co/spaces/j-blake/PVL_RAG_Chatbot"],
-    allow_credentials=True,
     allow_methods=["GET", "POST"],
     allow_headers=["*"],
 )
@@ -70,9 +57,24 @@ class AskResponse(BaseModel):
 
 
 
+#### STARTUP ####
+
+db: Chroma = None
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+   global db
+   db = load_db()
+   print(f"Server ready - model: {GROQ_MODEL}")
+   yield 
+
 
 
 #### ENDPOINTS ####
+@app.get("/")                                   # Endpoint serve the frontend HTML
+async def serve_frontend():
+    return FileResponse("index_.html")
+
 @app.get("/health")
 async def health_check():
     return {"status": "OK",  "message": "Pampellone By-Laws Chatbot is running."}
@@ -93,10 +95,6 @@ async def ask(request: AskRequest):
         clause_text=result["clause_text"]
     )
 
-# #### Route to serve the HTML file ####
-# @app.get("/")
-# async def serve_frontend():
-#     return FileResponse("index_.html")
 
     #### LOCAL ENTRY POINT ###
 

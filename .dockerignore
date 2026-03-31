@@ -1,0 +1,32 @@
+
+# Python cache files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Virtual environments
+venv/
+.venvChat/
+env/
+
+# Development files and notes
+.git/
+.gitignore
+*.md
+.env
+Pampellone Chatbot development  Notes.md
+*.txt
+!requirements.txt
+
+# Local data files (the PDF - Chroma DB is already built)
+Data/
+
+# IDE files
+.vscode/
+.idea/
+
+
+# Jupyter Notebooks
+*.ipynb
