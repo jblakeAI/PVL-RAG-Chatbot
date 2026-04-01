@@ -30,7 +30,7 @@ from config import (
 from sentence_transformers import CrossEncoder
 from llm import llm_answer_generator
 
-
+_cross_encoder = None
 
 ### CHUNK RETRIEVAL ###
 
@@ -60,27 +60,38 @@ def retrieval_dict(db: Chroma, query: str, k: int = RETRIEVAL_K) -> List[Dict]:
 
 ### CROSS ENCODER ###
 
-# Loaded once at module level so it isn't reloaded on every query.
+# # Loaded once at module level so it isn't reloaded on every query.
 
-cross_encoder = CrossEncoder(
-   CROSS_ENCODER_MODEL,
-    device="cpu"
-)
+# cross_encoder = CrossEncoder(
+#    CROSS_ENCODER_MODEL,
+#     device="cpu"
+# )
+
+def get_cross_encoder():
+    """
+    Load cross encoder and once 
+    reuse it.
+    """
+    global _cross_encoder
+    if _cross_encoder is None:
+        _cross_encoder = CrossEncoder(CROSS_ENCODER_MODEL, device="cpu")
+    return _cross_encoder
 
 
 ###  CROSS ENCODER RELEVANCE FILTER ###
 
 def is_clause_relevant(query: str, chunks: List[Dict], threshold = RELEVANCE_THRESHOLD) -> List[Dict]:   
     """ 
-     Use the cross-encoder to score each chunk against the query.
+    Use the cross-encoder to score each chunk against the query.
     Returns only chunks that score at or above RELEVANCE_THRESHOLD.
 
     """
+    encoder = get_cross_encoder()
 
     relevant_clauses = []
     for chunk in  chunks:
         clause_text = chunk['text']
-        score = cross_encoder.predict([(query, clause_text)])[0]
+        score = encoder.predict([(query, clause_text)])[0]
         if score >= threshold:
             chunk['cross_encoder_score'] = score
             relevant_clauses.append(chunk)

@@ -15,6 +15,12 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 
+# Set a fixed, explicit cache location BEFORE downloading
+# This ensures build and runtime use the exact same directory
+ENV HF_HOME=/app/hf_cache
+
+
+
 # Pre-download the embedding model and cross-encoder model into the image
 # This makes cold starts faster - the model won't need to download at runtime
 # This way Cloud Run never needs to contact HuggingFace
