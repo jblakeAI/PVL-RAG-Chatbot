@@ -34,7 +34,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://huggingface.co/spaces/j-blake/PVL_RAG_Chatbot"],
+    allow_origins=["*"],
     allow_methods=["GET", "POST"],
     allow_headers=["*"],
 )
@@ -99,4 +99,4 @@ async def ask(request: AskRequest):
     #### LOCAL ENTRY POINT ###
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", host ="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("main:app", host ="0.0.0.0", port=8080, reload=True)
