@@ -17,7 +17,16 @@ from vectorstore import load_db
 from config import GROQ_MODEL
 from retrieval import query_answer_pipe
 
+#### STARTUP ####
 
+db: Chroma = None
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+   global db
+   db = load_db()
+   print(f"Server ready - model: {GROQ_MODEL}")
+   yield 
 
 
 #### APP SETUP ####
@@ -55,18 +64,6 @@ class AskResponse(BaseModel):
     clause_id: str | None = None      # The clause that answered the question (if found)
     clause_text: str | None = None    # # The raw clause text (for transparency)
 
-
-
-#### STARTUP ####
-
-db: Chroma = None
-
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-   global db
-   db = load_db()
-   print(f"Server ready - model: {GROQ_MODEL}")
-   yield 
 
 
 
