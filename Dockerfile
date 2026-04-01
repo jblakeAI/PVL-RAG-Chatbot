@@ -25,6 +25,11 @@ CrossEncoder('cross-encoder/ms-marco-MiniLM-L6-v2'); \
 print('Both models downloaded successfully')"
 
 
+# CRITICAL: Tell HuggingFace libraries to NEVER reach out to the internet at runtime
+# Use only what was downloaded above during build
+ENV TRANSFORMERS_OFFLINE=1
+ENV HF_HUB_OFFLINE=1
+
 # Copy all project files into the container
 COPY . .
 
