@@ -79,20 +79,23 @@ async def health_check():
             
 @app.post("/ask", response_model=AskResponse)
 async def ask(request: AskRequest):
-
     question = request.question.strip()
     if not question:
         raise HTTPException(status_code=400,  detail="Question cannot be empty.")
     
-    result = query_answer_pipe(db, question)
+    try:
+        result = query_answer_pipe(db, question)
+        return AskResponse(
+            answer=result["answer"],
+            clause_id=result["clause_id"],
+            clause_text=result["clause_text"]
+        )
 
-    return AskResponse(
-        answer=result["answer"],
-        clause_id=result["clause_id"],
-        clause_text=result["clause_text"]
-    )
-
-
+    except Exception as e:
+        # This will show the real error in the chatbot UI
+        raise HTTPException(status_code=500, detail=str(e))
+    
+    
     #### LOCAL ENTRY POINT ###
 
 if __name__ == "__main__":
