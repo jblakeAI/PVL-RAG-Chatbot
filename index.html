@@ -446,12 +446,19 @@
 
         removeTypingIndicator();
 
-        if (!response.ok) {
-          const err = await response.json().catch(() => ({}));
-          addMessage("bot", `Sorry, something went wrong: ${err.detail || response.statusText}`);
-          document.querySelector("#chat .msg.bot:last-child .bubble").classList.add("error-bubble");
-          return;
-        }
+
+         if (!response.ok) {
+           let errorDetail = response.statusText;
+           try {
+             const err = await response.json();
+             errorDetail = err.detail || JSON.stringify(err);
+           } catch (e) {
+             errorDetail = `HTTP ${response.status} - could not parse error response`;
+           }
+           addMessage("bot", `Error ${response.status}: ${errorDetail}`);
+           document.querySelector("#chat .msg.bot:last-child .bubble").classList.add("error-bubble");
+           return;
+         }    
 
         const data = await response.json();
         addMessage("bot", data.answer, data.clause_id, data.clause_text);
