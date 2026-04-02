@@ -70,7 +70,7 @@ class AskResponse(BaseModel):
 #### ENDPOINTS ####
 @app.get("/")                                   # Endpoint serve the frontend HTML
 async def serve_frontend():
-    return FileResponse("index_.html")
+    return FileResponse("index.html")
 
 @app.get("/health")
 async def health_check():
