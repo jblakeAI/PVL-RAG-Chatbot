@@ -18,6 +18,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Set a fixed, explicit cache location BEFORE downloading
 # This ensures build and runtime use the exact same directory
 ENV HF_HOME=/app/hf_cache
+ENV TRANSFORMERS_CACHE=/app/hf_cache
+ENV SENTENCE_TRANSFORMERS_HOME=/app/hf_cache
+
+
 
 
 

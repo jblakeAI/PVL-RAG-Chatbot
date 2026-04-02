@@ -15,7 +15,7 @@ from fastapi.responses import FileResponse
 from langchain_chroma import Chroma
 from vectorstore import load_db
 from config import GROQ_MODEL
-from retrieval import query_answer_pipe
+from retrieval import query_answer_pipe, get_cross_encoder
 
 #### STARTUP ####
 
@@ -25,6 +25,10 @@ db: Chroma = None
 async def lifespan(app: FastAPI):
    global db
    db = load_db()
+
+   # FORCE model load at startup
+   get_cross_encoder()
+
    print(f"Server ready - model: {GROQ_MODEL}")
    yield 
 
@@ -95,7 +99,7 @@ async def ask(request: AskRequest):
         # This will show the real error in the chatbot UI
         raise HTTPException(status_code=500, detail=str(e))
     
-    
+
     #### LOCAL ENTRY POINT ###
 
 if __name__ == "__main__":

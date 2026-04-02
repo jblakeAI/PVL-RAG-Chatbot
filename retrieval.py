@@ -60,13 +60,6 @@ def retrieval_dict(db: Chroma, query: str, k: int = RETRIEVAL_K) -> List[Dict]:
 
 ### CROSS ENCODER ###
 
-# # Loaded once at module level so it isn't reloaded on every query.
-
-# cross_encoder = CrossEncoder(
-#    CROSS_ENCODER_MODEL,
-#     device="cpu"
-# )
-
 def get_cross_encoder():
     """
     Load cross encoder and once 
@@ -74,8 +67,12 @@ def get_cross_encoder():
     """
     global _cross_encoder
     if _cross_encoder is None:
-        _cross_encoder = CrossEncoder(CROSS_ENCODER_MODEL, device="cpu")
+        _cross_encoder = CrossEncoder(
+            CROSS_ENCODER_MODEL, device="cpu",
+              local_files_only=True
+        )
     return _cross_encoder
+
 
 
 ###  CROSS ENCODER RELEVANCE FILTER ###
@@ -154,7 +151,7 @@ def query_answer_pipe(db, query):
         }
     
    
-    
+
     if len(candidates) == 1:
         best_clause = candidates[0]
     else:
