@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Pampellone Villas By-Laws Assistant</title>
-
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Crimson+Pro:wght@400;500&family=DM+Mono:wght@400&display=swap" rel="stylesheet"/>
@@ -207,7 +206,23 @@
       0%, 80%, 100% { transform: translateY(0);    opacity: 0.4; }
       40%            { transform: translateY(-5px); opacity: 1;   }
     }
+  /* ── Instructions block ───────────────────────────────────── */
+    #instructions {
+      width: 100%;
+      max-width: 720px;
+      padding: 10px 24px 6px;
+      ont-size: 14px;
+      color: var(--text-muted);
+   }
 
+    #instructions ul {
+      margin-top: 4px;
+      padding-left: 18px;
+   }
+
+    #instructions li {
+      margin-bottom: 3px;
+   }
     /* ── Suggestions ───────────────────────────────────────────── */
     #suggestions {
       display: flex;
@@ -308,12 +323,22 @@
     <img id="hero-img" alt="Pampellone Villas" />
     <div id="hero-text">
       <h1>Pampellone Villas By-Laws Assistant</h1>
-      <p>Ask any question about the by-laws.</p>
-       <p>Answers are grounded in the official Pampellone Villas LTD By-law document.</p>
+      <p>Ask questions about the by-laws and get answers generated from and grounded in the official Pampellone Villas LTD By-law document.</p>
+       <!-- <p>All answers are grounded in the official Pampellone Villas LTD By-law document.</p> -->
     </div>
   </div>
 
   <div class="hero-divider"></div>
+<div id="instructions">
+  <p><strong>How to use:</strong></p>
+  <ul>
+    <li>Ask any question about the Pampellone Villas by-laws</li>
+    <li>Use full questions or key words (e.g. “Who can call a special meeting?” or "tenure")</li>
+     <li>Try rephrasing question if no answers are found</li>
+    <li>Click the clause tag in responses to view the exact source text</li>
+  </ul>
+</div>
+
 
   <div id="suggestions">
     <button class="suggestion" onclick="fillQuestion(this)">Who can call a special meeting?</button>
