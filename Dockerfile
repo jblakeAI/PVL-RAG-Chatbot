@@ -31,7 +31,7 @@ ENV SENTENCE_TRANSFORMERS_HOME=/app/hf_cache
 RUN python -c "\
 from sentence_transformers import SentenceTransformer, CrossEncoder; \
 SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2'); \
-CrossEncoder('cross-encoder/ms-marco-MiniLM-L6-v2'); \
+CrossEncoder('cross-encoder/ms-marco-MiniLM-L-6-v2'); \
 print('Both models downloaded successfully')"
 
 
