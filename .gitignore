@@ -15,6 +15,7 @@ Pampellone Chatbot development  Notes.md
 *.md
 *.txt
 !requirements.txt
+!README.md
 
 
 # Python cache (good to ignore too)

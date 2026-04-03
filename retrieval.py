@@ -62,8 +62,8 @@ def retrieval_dict(db: Chroma, query: str, k: int = RETRIEVAL_K) -> List[Dict]:
 
 def get_cross_encoder():
     """
-    Load cross encoder and once 
-    reuse it.
+    Load cross encoder once 
+    and reuse it.
     """
     global _cross_encoder
     if _cross_encoder is None:
