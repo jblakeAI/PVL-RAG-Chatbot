@@ -30,3 +30,6 @@ Data/
 
 # Jupyter Notebooks
 *.ipynb
+
+# Testing Files
+test_rewrite.py

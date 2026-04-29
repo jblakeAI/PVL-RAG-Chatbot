@@ -24,3 +24,6 @@ __pycache__/
 
 # Chroma vector DB (if you don't want to push it)
 # chroma_db/
+
+# Testing Files
+test_rewrite.py

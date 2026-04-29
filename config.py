@@ -66,6 +66,10 @@ RELEVANCE_THRESHOLD = 1.5
 
 GROQ_MODEL = "llama-3.3-70b-versatile"
 
+# Lightweight model used only for query rewriting (faster, cheaper than main model)
+GROQ_REWRITE_MODEL = "llama-3.1-8b-instant"   
+
+
 # Generation parameters
 GROQ_MAX_TOKENS = 300    # Maximum tokens in the response.
 

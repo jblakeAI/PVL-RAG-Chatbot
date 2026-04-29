@@ -28,7 +28,8 @@ from config import (
 )
 
 from sentence_transformers import CrossEncoder
-from llm import llm_answer_generator
+from llm import llm_answer_generator, rewrite_query
+
 
 _cross_encoder = None
 
@@ -98,8 +99,6 @@ def is_clause_relevant(query: str, chunks: List[Dict], threshold = RELEVANCE_THR
 
 
 
-
-
 ### PIPELINE ###
 
 def query_answer_pipe(db, query):
@@ -143,14 +142,26 @@ def query_answer_pipe(db, query):
     # Filtering answering clauses (Cross Encoder)                                
     candidates = is_clause_relevant(query, chunks)
 
+    # --- QUERY REWRITE FALLBACK ---
+    # If no clause passed the cross-encoder threshold, try once with a rewritten query.
+    # The rewriter rephrases the user's natural language into legal terminology,
+    # which can close the gap between casual phrasing and formal clause language.
+    if not candidates:
+        rewritten = rewrite_query(query)
+
+        if rewritten != query:                              # Only retry if something actually changed
+            chunks = retrieval_dict(db, rewritten)
+            candidates = is_clause_relevant(rewritten, chunks)
+            query = rewritten                               # Use rewritten query for LLM answer too
+
     if not candidates:
         return {
-            "answer":  "No clause was relevant enough to answer your question accurately.",
+            "answer": "No clause was relevant enough to answer your question accurately.",
             "clause_id": None,
             "clause_text": None
         }
-    
-   
+    # --- END FALLBACK ---
+
 
     if len(candidates) == 1:
         best_clause = candidates[0]

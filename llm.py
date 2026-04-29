@@ -17,7 +17,7 @@ import os
 from groq import Groq
 from dotenv import load_dotenv
 
-from config import GROQ_MODEL, GROQ_MAX_TOKENS
+from config import GROQ_MODEL, GROQ_MAX_TOKENS, GROQ_REWRITE_MODEL
 
 
 
@@ -29,6 +29,45 @@ load_dotenv()
 groq_client = Groq(
     api_key=os.environ.get("GROQ_API_KEY")
 )
+
+
+
+### QUERY REWRITER ###
+
+def rewrite_query(query: str) -> str:
+    """
+    Rewrite the user's query into formal legal language to improve
+    cross-encoder matching against by-law clause text.
+
+    Uses a smaller, faster model since this is a lightweight reformulation task.
+    Called at most once per user query, only when the cross-encoder finds nothing.
+
+    Args:
+        query: the original user question
+
+    Returns:
+        A rewritten query string, or the original query if rewriting fails.
+    """
+
+    prompt = f"""Rewrite the following question using formal legal and property by-law terminology.
+Keep it concise. Return ONLY the rewritten question, nothing else.
+
+Original question: {query}
+Rewritten question:"""
+
+    try:
+        response = groq_client.chat.completions.create(
+            model=GROQ_REWRITE_MODEL,
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.0,
+            max_tokens=60          # Rewrites are short — cap tokens aggressively
+        )
+        rewritten = response.choices[0].message.content.strip()
+       
+        return rewritten
+      
+    except Exception:
+        return query               # If rewriting fails, silently fall back to the original    
 
 
 
