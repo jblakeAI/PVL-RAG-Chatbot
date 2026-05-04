@@ -23,6 +23,7 @@ Every architectural decision flows from those constraints.
 - Cites the specific clause that answered the question
 - Lets users expand and read the raw clause text for full transparency
 - Refuses to answer if no relevant clause exists (instead of making something up)
+- Logs user questions and responses to a Google Sheet for feedback tracking and quality review
 
 ---
 
@@ -101,6 +102,7 @@ A few design details worth noting:
 | Frontend | Vanilla HTML/CSS/JS | Free |
 | Deployment | Google Cloud Run | Free tier |
 | Containerisation | Docker | Free |
+| Feedback Logging   | Google Sheets API (via gspread)  | Free tier |
 
 
 **Total cost to build and run: $0.**
@@ -182,9 +184,9 @@ All tunable settings live in `config.py`:
 
 | Setting | Default | What it controls |
 |---|---|---|
-| `RETRIEVAL_K` | `3` | How many chunks to fetch from ChromaDB |
-| `MAX_RETRIEVAL_DIST` | `1.2` | Max L2 distance to consider a chunk relevant |
-| `RELEVANCE_THRESHOLD` | `2.0` | Min cross-encoder score to pass the filter |
+| `RETRIEVAL_K` | `5` | How many chunks to fetch from ChromaDB |
+| `MAX_RETRIEVAL_DIST` | `2.0` | Max L2 distance to consider a chunk relevant |
+| `RELEVANCE_THRESHOLD` | `1.0` | Min cross-encoder score to pass the filter |
 | `GROQ_MODEL` | `llama-3.3-70b-versatile` | The LLM used for answer generation |
 | `GROQ_REWRITE_MODEL` | `llama-3.1-8b-instant` | The LLM used for query rewriting (fallback only) |
 | `GROQ_MAX_TOKENS` | `300` | Max length of the LLM's response |
@@ -214,6 +216,9 @@ Trust is the most important feature of a legal/governance tool. An answer that s
 **Why not just send the whole document to the LLM?**
 Token limits aside, constraining the model to a single retrieved clause is itself a hallucination-reduction technique. The less context a model has to drift from, the less it can invent. The design also took into consideration future scaling; adding updated by-laws or the Companies Act of Trinidad and Tobago. Feeding full documents such as these would be impossible or impractical while still maintaining the designated architectural constraints.
 
+
+**Why log to Google Sheets?**
+A lightweight Google Sheet provides a persistent, human-readable record of every question asked and answer returned. This makes it easy to spot gaps in the by-laws coverage, identify frequently asked questions, and review cases where the system refused to answer, without setting up a database. The gspread library handles authentication via a service account, keeping the integration simple and free.
 ---
 
 ## API Reference

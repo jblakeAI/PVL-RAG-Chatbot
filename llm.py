@@ -63,7 +63,7 @@ Rewritten question:"""
             max_tokens=60          # Rewrites are short — cap tokens aggressively
         )
         rewritten = response.choices[0].message.content.strip()
-       
+        # print(f"[REWRITE] '{query}' → '{rewritten}'")  ##### Used for cli testing
         return rewritten
       
     except Exception:

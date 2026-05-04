@@ -52,7 +52,7 @@ def retrieval_dict(db: Chroma, query: str, k: int = RETRIEVAL_K) -> List[Dict]:
             'rank': rank,
             'score': score,
             'clause_id':  doc.metadata.get('clause_id'),
-            'text' : doc.page_content[:400]
+            'text' : doc.page_content[:550]     
             })
                
     return rows
@@ -156,7 +156,7 @@ def query_answer_pipe(db, query):
 
     if not candidates:
         return {
-            "answer": "No clause was relevant enough to answer your question accurately.",
+            "answer": "No clause was relevant enough to answer your question accurately.\n Please rephrase the question or try keywords instead.",
             "clause_id": None,
             "clause_text": None
         }

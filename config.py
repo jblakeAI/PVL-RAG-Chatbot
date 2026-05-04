@@ -37,11 +37,11 @@ EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
 ### RETRIEVAL ### 
 
 # The number of chunks to retreive from Chroma database before reranking 
-RETRIEVAL_K = 3
+RETRIEVAL_K = 5   ###   Previously 3
 
 # Maximum L2 distance score from Chroma to consider reranking 
 # Lower MAX_RETREIVAL_DIST stricter filtering
-MAX_RETRIEVAL_DIST = 1.2
+MAX_RETRIEVAL_DIST = 2.0  # Previously 1.2
 
 
 
@@ -51,8 +51,7 @@ MAX_RETRIEVAL_DIST = 1.2
 CROSS_ENCODER_MODEL = "cross-encoder/ms-marco-MiniLM-L-6-v2"
 
 # Minimum cross-encoder score to consider a clause relevant
-RELEVANCE_THRESHOLD = 1.5
-
+RELEVANCE_THRESHOLD = 1.0 # Previously 1.5
 
 
 
