@@ -185,6 +185,49 @@
     }
     .clause-detail.open { display: block; }
 
+    /* Feedback controls under bot responses */
+    .feedback-row {
+      display: inline-flex;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .feedback-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      cursor: pointer;
+      font-size: 16px;
+      line-height: 1;
+      display: inline-grid;
+      place-items: center;
+      transition: transform 0.1s, background 0.15s, border-color 0.15s, opacity 0.15s;
+    }
+    .feedback-btn:hover {
+      transform: translateY(-1px);
+      border-color: var(--accent-warm);
+      background: var(--terra-lt);
+    }
+    .feedback-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .feedback-btn.selected {
+      border-color: var(--accent-warm);
+      background: #EDD5C5;
+    }
+    .feedback-status {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+      min-height: 16px;
+    }
+    .feedback-status.error {
+      color: #7A2E1E;
+    }
+
     /* Typing indicator */
     .typing .bubble {
       display: flex;
@@ -211,7 +254,7 @@
       width: 100%;
       max-width: 720px;
       padding: 10px 24px 6px;
-      ont-size: 14px;
+      font-size: 14px;
       color: var(--text-muted);
    }
 
@@ -372,6 +415,7 @@
 
     // ── Configuration ──────────────────────────────────────────────────────────
     const API_URL = "/ask";
+    const FEEDBACK_URL = "/feedback";
 
     // ── Auto-resize textarea ───────────────────────────────────────────────────
     const textarea = document.getElementById("question");
@@ -394,7 +438,7 @@
     }
 
     // ── Add a message bubble ───────────────────────────────────────────────────
-    function addMessage(role, text, clauseId = null, clauseText = null) {
+    function addMessage(role, text, clauseId = null, clauseText = null, questionText = null) {
       const chat = document.getElementById("chat");
       const wrapper = document.createElement("div");
       wrapper.className = `msg ${role}`;
@@ -427,9 +471,101 @@
         wrapper.appendChild(detail);
       }
 
+      if (role === "bot" && questionText) {
+        const feedbackRow = document.createElement("div");
+        feedbackRow.className = "feedback-row";
+        const feedbackStatus = document.createElement("div");
+        feedbackStatus.className = "feedback-status";
+
+        const thumbsUp = document.createElement("button");
+        thumbsUp.className = "feedback-btn";
+        thumbsUp.textContent = "👍";
+        thumbsUp.title = "Helpful";
+        thumbsUp.setAttribute("aria-label", "Send thumbs up feedback");
+
+        const thumbsDown = document.createElement("button");
+        thumbsDown.className = "feedback-btn";
+        thumbsDown.textContent = "👎";
+        thumbsDown.title = "Not helpful";
+        thumbsDown.setAttribute("aria-label", "Send thumbs down feedback");
+
+        const setLoadingState = (isLoading) => {
+          thumbsUp.disabled = isLoading;
+          thumbsDown.disabled = isLoading;
+        };
+
+        thumbsUp.addEventListener("click", async () => {
+          setLoadingState(true);
+          const ok = await submitFeedback({
+            question: questionText,
+            answer: text,
+            clauseId,
+            rating: "up"
+          });
+          setLoadingState(false);
+          if (ok) {
+            feedbackStatus.classList.remove("error");
+            feedbackStatus.textContent = "Thanks for your feedback.";
+            thumbsUp.classList.add("selected");
+            thumbsDown.classList.remove("selected");
+            thumbsUp.disabled = true;
+            thumbsDown.disabled = true;
+          } else {
+            feedbackStatus.classList.add("error");
+            feedbackStatus.textContent = "Feedback not sent. Please try again.";
+          }
+        });
+
+        thumbsDown.addEventListener("click", async () => {
+          setLoadingState(true);
+          const ok = await submitFeedback({
+            question: questionText,
+            answer: text,
+            clauseId,
+            rating: "down"
+          });
+          setLoadingState(false);
+          if (ok) {
+            feedbackStatus.classList.remove("error");
+            feedbackStatus.textContent = "Thanks for your feedback.";
+            thumbsDown.classList.add("selected");
+            thumbsUp.classList.remove("selected");
+            thumbsUp.disabled = true;
+            thumbsDown.disabled = true;
+          } else {
+            feedbackStatus.classList.add("error");
+            feedbackStatus.textContent = "Feedback not sent. Please try again.";
+          }
+        });
+
+        feedbackRow.appendChild(thumbsUp);
+        feedbackRow.appendChild(thumbsDown);
+        wrapper.appendChild(feedbackRow);
+        wrapper.appendChild(feedbackStatus);
+      }
+
       chat.appendChild(wrapper);
       chat.scrollTop = chat.scrollHeight;
       return wrapper;
+    }
+
+    async function submitFeedback({ question, answer, clauseId, rating }) {
+      try {
+        const response = await fetch(FEEDBACK_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            question,
+            answer,
+            clause_id: clauseId || null,
+            rating,
+            comment: null
+          })
+        });
+        return response.ok;
+      } catch (err) {
+        return false;
+      }
     }
 
     // ── Typing indicator ───────────────────────────────────────────────────────
@@ -486,7 +622,7 @@
          }    
 
         const data = await response.json();
-        addMessage("bot", data.answer, data.clause_id, data.clause_text);
+        addMessage("bot", data.answer, data.clause_id, data.clause_text, question);
 
       } catch (err) {
         removeTypingIndicator();
