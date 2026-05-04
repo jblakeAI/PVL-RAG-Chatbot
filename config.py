@@ -74,4 +74,5 @@ GROQ_REWRITE_MODEL = "llama-3.1-8b-instant"
 GROQ_MAX_TOKENS = 300    # Maximum tokens in the response.
 
 
-
+# GOOGLE SHEET ID
+FEEDBACK_SHEET_ID = "1OFLXnGnl-vuxp7M0wFMuHvbbQtDyfvP4FmxmjdxX3g4"   
