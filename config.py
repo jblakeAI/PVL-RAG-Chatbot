@@ -41,7 +41,7 @@ RETRIEVAL_K = 5   ###   Previously 3
 
 # Maximum L2 distance score from Chroma to consider reranking 
 # Lower MAX_RETREIVAL_DIST stricter filtering
-MAX_RETRIEVAL_DIST = 2.0  # Previously 1.2
+MAX_RETRIEVAL_DIST = 1.5  # Previously 1.2
 
 
 
