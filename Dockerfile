@@ -1,5 +1,6 @@
+# Stage 1: buider with complier tools that get thrown out later 
 # Use official Python image
-FROM python:3.11-slim
+FROM python:3.11-slim AS builder
 
 # Set working directory inside the container
 WORKDIR /app
@@ -12,33 +13,25 @@ RUN apt-get update && apt-get install -y \
 # Install dependencies first (Docker caches this layer separately,
 # so rebuilds are faster if only your code changes)
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --prefix=/install -r requirements.txt
 
 
-# Set a fixed, explicit cache location BEFORE downloading
-# This ensures build and runtime use the exact same directory
-ENV HF_HOME=/app/hf_cache
-ENV TRANSFORMERS_CACHE=/app/hf_cache
-ENV SENTENCE_TRANSFORMERS_HOME=/app/hf_cache
+# Stage 2: final image without compiler tools
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Copy only the installed Python packages — no compiler, no build junk
+COPY --from=builder /install /usr/local
 
 
+# # Model cache dir — MUST be /tmp, it's the only guaranteed-writable
+# location in Cloud Run's filesystem at runtime
+ENV HF_HOME=/tmp/hf_cache
+ENV TRANSFORMERS_CACHE=/tmp/hf_cache
+ENV SENTENCE_TRANSFORMERS_HOME=/tmp/hf_cache
 
 
-
-# Pre-download the embedding model and cross-encoder model into the image
-# This makes cold starts faster - the model won't need to download at runtime
-# This way Cloud Run never needs to contact HuggingFace
-RUN python -c "\
-from sentence_transformers import SentenceTransformer, CrossEncoder; \
-SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2'); \
-CrossEncoder('cross-encoder/ms-marco-MiniLM-L-6-v2'); \
-print('Both models downloaded successfully')"
-
-
-# CRITICAL: Tell HuggingFace libraries to NEVER reach out to the internet at runtime
-# Use only what was downloaded above during build
-ENV TRANSFORMERS_OFFLINE=1
-ENV HF_HUB_OFFLINE=1
 
 # Copy all project files into the container
 COPY . .

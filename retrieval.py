@@ -70,7 +70,6 @@ def get_cross_encoder():
     if _cross_encoder is None:
         _cross_encoder = CrossEncoder(
             CROSS_ENCODER_MODEL, device="cpu",
-              local_files_only=True
         )
     return _cross_encoder
 
