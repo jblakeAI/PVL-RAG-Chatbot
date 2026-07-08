@@ -107,7 +107,7 @@ A few design details worth noting:
 
 **Total cost to build and run: $0.**
 
-The two HuggingFace models are downloaded once into the Docker image at build time, eliminating cold-start latency on Cloud Run and removing any runtime dependency on the model hub. The Groq API provides a free tier with generous rate limits and notably fast inference speeds.
+The two HuggingFace models are downloaded on container startup (not baked into the image), keeping the Docker image small and Artifact Registry storage within Google Cloud's free tier. This trades a few extra seconds of cold-start latency on the first request after a restart for a much smaller, cheaper image. The Groq API provides a free tier with generous rate limits and notably fast inference speeds.
 
 ---
 
@@ -120,7 +120,7 @@ The two HuggingFace models are downloaded once into the Docker image at build ti
 ├── llm.py             # Groq API integration, prompt construction, and query rewriter
 ├── vectorstore.py     # Builds and loads the ChromaDB vector database
 ├── index.html         # The frontend — served directly by FastAPI
-├── Dockerfile         # Container definition (includes model pre-download)
+├── Dockerfile         # Container definition (multi-stage build; models download on startup)
 └── data/
     └── Pampellone_by_laws.pdf   # The source document
 ```
@@ -174,7 +174,7 @@ docker build -t bylaws-chatbot .
 docker run -p 8080:8080 --env-file .env bylaws-chatbot
 ```
 
-The Dockerfile pre-downloads both HuggingFace models during the build step, so the container starts instantly without any model downloads at runtime.
+The Dockerfile uses a multi-stage build to keep the image small. Both HuggingFace models are downloaded the first time the container starts (cached in `/tmp`), so expect a short delay on the first request after each cold start.
 
 ---
 
@@ -201,11 +201,8 @@ By-laws documents are replete with repetitions. This may render one stage of ret
 **Why add a query rewrite fallback?**
 The cross-encoder is precise but depends on both the question and clause using similar language. Users naturally ask questions in plain conversational language, while by-laws are written in formal legal prose. When this gap is too large, the cross-encoder correctly rejects the retrieved chunks even if one of them is actually the right answer. The rewrite step bridges that gap by translating the user's phrasing into legal terminology before retrying. It runs only when the cross-encoder has already failed, and only once, so the latency cost is paid only when necessary. A smaller, faster model handles the rewrite to keep that cost low.
 
-**Why bake the models into the Docker image?**
-Cold start latency was a real concern on Cloud Run, which can spin down idle containers. Downloading two HuggingFace models at runtime adds 30–60 seconds to the first request. Pre-downloading them at build time (using `RUN python -c "..."` in the Dockerfile) eliminates this entirely and the container can start with everything it needs already on disk.
-
-**Why set `TRANSFORMERS_OFFLINE=1` at runtime?**
-After baking the models in, there's no reason for the running container to ever reach the HuggingFace hub. Setting the offline flag makes that guarantee explicit and removes a class of potential runtime failures.
+**Why download the models at startup instead of baking them into the image?**
+The original design pre-downloaded both models at build time to eliminate cold-start latency entirely. In practice, this caused every deploy to push a large image to Artifact Registry, and old versions accumulated storage costs well beyond the free tier. Since this app is low-traffic, a few extra seconds of latency on the first request after a cold start is a worthwhile tradeoff for keeping the image small and the deployment genuinely free. The models are downloaded once per container instance and cached in `/tmp` for the life of that instance.
 
 **Why Groq instead of OpenAI?**
 Groq's free tier runs `llama-3.3-70b-versatile`, a model that competes with GPT-4 on many benchmarks and its inference speed is significantly faster than OpenAI's API at equivalent quality. For a latency-sensitive, zero-budget project, it was the obvious choice.
