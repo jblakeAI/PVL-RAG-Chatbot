@@ -215,7 +215,7 @@ Token limits aside, constraining the model to a single retrieved clause is itsel
 
 
 **Why log to Google Sheets?**
-A lightweight Google Sheet provides a persistent, human-readable record of every question asked and answer returned. This makes it easy to spot gaps in the by-laws coverage, identify frequently asked questions, and review cases where the system refused to answer, without setting up a database. The gspread library handles authentication via a service account, keeping the integration simple and free.
+A lightweight Google Sheet provides a persistent, human-readable record of every question asked and answer returned if a user rates the exchange. This makes it easy to spot gaps in the by-laws coverage, identify frequently asked questions, and review cases where the system refused to answer, without setting up a database. The gspread library handles authentication via a service account, keeping the integration simple and free.
 ---
 
 ## API Reference
