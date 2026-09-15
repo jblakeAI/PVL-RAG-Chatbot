@@ -96,7 +96,7 @@ A few design details worth noting:
 | Vector Database | [ChromaDB](https://www.trychroma.com/) | Free |
 | Embedding Model | `sentence-transformers/all-MiniLM-L6-v2` (HuggingFace) | Free |
 | Reranking Model | `cross-encoder/ms-marco-MiniLM-L-6-v2` (HuggingFace) | Free |
-| LLM (answers) | [Groq API](https://console.groq.com/) — `llama-3.3-70b-versatile` | Free tier |
+| LLM (answers) | [Groq API](https://console.groq.com/) — `openai/gpt-oss-120b` | Free tier |
 | LLM (rewrite) | [Groq API](https://console.groq.com/) — `llama-3.1-8b-instant` | Free tier |
 | Backend | [FastAPI](https://fastapi.tiangolo.com/) | Free |
 | Frontend | Vanilla HTML/CSS/JS | Free |

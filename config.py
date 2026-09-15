@@ -63,10 +63,10 @@ RELEVANCE_THRESHOLD = 1.0 # Previously 1.5
 # llama-3.1-8b-instant     — faster, lighter, still very capable
 # mixtral-8x7b-32768       — large context window
 
-GROQ_MODEL = "llama-3.3-70b-versatile"
+GROQ_MODEL = "openai/gpt-oss-120b"
 
 # Lightweight model used only for query rewriting (faster, cheaper than main model)
-GROQ_REWRITE_MODEL = "llama-3.1-8b-instant"   
+GROQ_REWRITE_MODEL = "openai/gpt-oss-20b"   
 
 
 # Generation parameters
