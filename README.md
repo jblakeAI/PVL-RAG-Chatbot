@@ -103,7 +103,7 @@ A few design details worth noting:
 | Deployment | Google Cloud Run | Free tier |
 | Containerisation | Docker | Free |
 | Feedback Logging   | Google Sheets API (via gspread)  | Free tier |
-
+> **Note:** `requirements.txt` pins `torch` via PyTorch's CPU-only wheel index (`--extra-index-url https://download.pytorch.org/whl/cpu`) to avoid pulling the default CUDA build, keeping the image lean for CPU-only Cloud Run.
 
 **Total cost to build and run: $0.**
 
@@ -140,6 +140,8 @@ The two HuggingFace models are downloaded on container startup (not baked into t
 ```bash
 pip install -r requirements.txt
 ```
+`requirements.txt` is configured to install the CPU-only build of PyTorch. If you add or update packages, verify `pip show torch` still reports a `+cpu` version suffix afterward.
+
 
 ### 2. Set up your environment
 
@@ -203,6 +205,9 @@ The cross-encoder is precise but depends on both the question and clause using s
 
 **Why download the models at startup instead of baking them into the image?**
 The original design pre-downloaded both models at build time to eliminate cold-start latency entirely. In practice, this caused every deploy to push a large image to Artifact Registry, and old versions accumulated storage costs well beyond the free tier. Since this app is low-traffic, a few extra seconds of latency on the first request after a cold start is a worthwhile tradeoff for keeping the image small and the deployment genuinely free. The models are downloaded once per container instance and cached in `/tmp` for the life of that instance.
+
+**Why pin torch to the CPU-only build?**
+By default, `pip install torch` pulls the CUDA/GPU build from PyPI, bundling NVIDIA libraries (cuBLAS, cuDNN, NCCL) that do nothing on Cloud Run's CPU-only environment — this alone accounted for roughly 2GB of image bloat. Adding `--extra-index-url https://download.pytorch.org/whl/cpu` to `requirements.txt` forces pip to resolve the CPU-only wheel instead. This dropped the image's content size from ~3GB to ~534MB, bringing Artifact Registry usage back within the free tier.
 
 **Why Groq instead of OpenAI?**
 Groq's free tier runs `llama-3.3-70b-versatile`, a model that competes with GPT-4 on many benchmarks and its inference speed is significantly faster than OpenAI's API at equivalent quality. For a latency-sensitive, zero-budget project, it was the obvious choice.
